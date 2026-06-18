@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Таблицы Кэли, поля и V*</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <div class="tag">точный перебор</div>
+  <h1>Таблицы Кэли, конечные поля и сопряжённое пространство V*</h1>
+  <p class="lead">
+    Все структуры строятся перебором по таблицам операций на множестве {0, ..., n-1} для
+    порядков 2, 3 и 4. Никаких готовых библиотек алгебры и линейной алгебры - только
+    точная арифметика в конечных множествах и конечных полях, поэтому округления здесь нет
+    в принципе. Ниже - сводка результатов; данные лежат в <code>out/</code>
+    (CSV и JSON), а считает всё программа на Go из <code>cmd/nct</code>.
+  </p>
+
+  <h2>I. Конечные алгебраические структуры</h2>
+
+  <figure class="chart">
+    <figcaption>Сколько структур каждого вида существует при порядках 2, 3, 4 (шкала логарифмическая, иначе мелкие столбцы не видно)</figcaption>
+    <div class="legend">
+      <span><i style="background:#3454d1"></i>полугруппы</span>
+      <span><i style="background:#10a37f"></i>моноиды</span>
+      <span><i style="background:#d14d72"></i>группы</span>
+      <span><i style="background:#f2a33a"></i>полукольца</span>
+      <span><i style="background:#5b6b73"></i>кольца</span>
+      <span><i style="background:#7b3fe4"></i>поля</span>
+    </div>
+    <div class="plot">
+      <div class="group">
+        <div class="bars">
+          <div class="bar" style="height:70px;background:#3454d1"><b>8</b></div>
+          <div class="bar" style="height:51px;background:#10a37f"><b>4</b></div>
+          <div class="bar" style="height:35px;background:#d14d72"><b>2</b></div>
+          <div class="bar" style="height:70px;background:#f2a33a"><b>8</b></div>
+          <div class="bar" style="height:51px;background:#5b6b73"><b>4</b></div>
+          <div class="bar" style="height:35px;background:#7b3fe4"><b>2</b></div>
+        </div>
+        <div class="xlabel">порядок 2</div>
+      </div>
+      <div class="group">
+        <div class="bars">
+          <div class="bar" style="height:151px;background:#3454d1"><b>113</b></div>
+          <div class="bar" style="height:112px;background:#10a37f"><b>33</b></div>
+          <div class="bar" style="height:44px;background:#d14d72"><b>3</b></div>
+          <div class="bar" style="height:155px;background:#f2a33a"><b>129</b></div>
+          <div class="bar" style="height:73px;background:#5b6b73"><b>9</b></div>
+          <div class="bar" style="height:62px;background:#7b3fe4"><b>6</b></div>
+        </div>
+        <div class="xlabel">порядок 3</div>
+      </div>
+      <div class="group">
+        <div class="bars">
+          <div class="bar" style="height:260px;background:#3454d1"><b>3492</b></div>
+          <div class="bar" style="height:205px;background:#10a37f"><b>624</b></div>
+          <div class="bar" style="height:90px;background:#d14d72"><b>16</b></div>
+          <div class="bar" style="height:280px;background:#f2a33a"><b>6508</b></div>
+          <div class="bar" style="height:162px;background:#5b6b73"><b>160</b></div>
+          <div class="bar" style="height:82px;background:#7b3fe4"><b>12</b></div>
+        </div>
+        <div class="xlabel">порядок 4</div>
+      </div>
+    </div>
+  </figure>
+
+  <h3>Одна бинарная операция</h3>
+  <p class="note">Всего таблиц Кэли одной операции - это n<sup>n^2</sup>; для порядка 4 это уже 4<sup>16</sup> ~ 4,3 млрд, поэтому ассоциативные таблицы ищутся перебором с отсечениями, а не грубой силой.</p>
+  <div class="scroll">
+  <table>
+    <thead><tr>
+      <th>Порядок</th><th>Таблиц всего</th><th>Полугрупп</th><th>Не моноидов</th>
+      <th>Моноидов</th><th>Не групп</th><th>Групп</th><th>Неабелевых</th><th>Абелевых</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>2</td><td>16</td><td>8</td><td>4</td><td>4</td><td>2</td><td>2</td><td>0</td><td>2</td></tr>
+      <tr><td>3</td><td>19 683</td><td>113</td><td>80</td><td>33</td><td>30</td><td>3</td><td>0</td><td>3</td></tr>
+      <tr><td>4</td><td>4 294 967 296</td><td>3492</td><td>2868</td><td>624</td><td>608</td><td>16</td><td>0</td><td>16</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">Неабелевых групп нет: наименьшая неабелева группа - S3 порядка 6, до неё не дотягиваемся.</p>
+
+  <h3>Пары операций (+, *)</h3>
+  <p class="note">
+    Полукольца показаны сразу в двух трактовках, чтобы подходило под любое определение из курса:
+    <b>широкое</b> (умножение - просто полугруппа, единица не обязательна) и
+    <b>строгое</b> (умножение - моноид с двусторонней единицей, вариант Голана).
+  </p>
+  <div class="scroll">
+  <table>
+    <thead><tr>
+      <th>Порядок</th><th>Полуколец</th><th>Не колец</th>
+      <th>Полуколец с 1</th><th>С 1, не кольца</th>
+      <th>Колец</th><th>Без 1</th><th>С 1</th><th>С 1, не тел</th>
+      <th>Тел</th><th>Тел, не полей</th><th>Полей</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>2</td><td>8</td><td>4</td><td>4</td><td>2</td><td>4</td><td>2</td><td>2</td><td>0</td><td>2</td><td>0</td><td>2</td></tr>
+      <tr><td>3</td><td>129</td><td>120</td><td>36</td><td>30</td><td>9</td><td>3</td><td>6</td><td>0</td><td>6</td><td>0</td><td>6</td></tr>
+      <tr><td>4</td><td>6508</td><td>6348</td><td>924</td><td>852</td><td>160</td><td>88</td><td>72</td><td>60</td><td>12</td><td>0</td><td>12</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">Столбец «тел, не полей» всюду нулевой: это теорема Веддерберна, всякое конечное тело коммутативно, то есть является полем.</p>
+
+  <h3>Поля и изоморфизм</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr>
+      <th>Порядок</th><th>Размеченных полей</th><th>Классов изоморфизма</th>
+      <th>Размер класса</th><th>|Aut(F)|</th><th>n! / |Aut(F)|</th><th>Совпало</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>2</td><td>2</td><td>1</td><td>2</td><td>1</td><td>2</td><td class="yes">да</td></tr>
+      <tr><td>3</td><td>6</td><td>1</td><td>6</td><td>1</td><td>6</td><td class="yes">да</td></tr>
+      <tr><td>4</td><td>12</td><td>1</td><td>12</td><td>2</td><td>12</td><td class="yes">да</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">
+    Все поля одного порядка лежат в одном классе изоморфизма. Число размеченных таблиц
+    совпадает с n!/|Aut(F)|: для порядка 4 это 4!/|Aut(F4)| = 24/2 = 12, потому что у
+    F4 есть нетривиальный автоморфизм Фробениуса x -> x^2.
+  </p>
+
+  <h2>II. Векторное пространство V и сопряжённое V*</h2>
+  <p class="lead">
+    Разобранный пример: поле <b>F3</b>, размерность <b>dim V = 3</b>. Берём два базиса,
+    раскладываем вектор и ковектор, строим матрицы перехода и сопряжённый базис в V*.
+    Вся арифметика - по модулю 3.
+  </p>
+
+  <div class="cols">
+    <div class="card">
+      <h3>Базисы и координаты вектора</h3>
+      <p class="kv">Базис A (стандартный):</p>
+      <div class="mono">(1, 0, 0)
+(0, 1, 0)
+(0, 0, 1)</div>
+      <p class="kv">Базис B:</p>
+      <div class="mono">(1, 1, 0)
+(0, 1, 1)
+(0, 0, 1)</div>
+      <p class="kv">Вектор <b>v = (1, 2, 0)</b></p>
+      <p class="kv">[v]<sub>A</sub> = <b>(1, 2, 0)</b></p>
+      <p class="kv">[v]<sub>B</sub> = <b>(1, 1, 2)</b></p>
+      <p class="kv">Координаты меняются контравариантно: <span class="yes">да</span></p>
+    </div>
+
+    <div class="card">
+      <h3>Матрицы перехода</h3>
+      <p class="kv">T (A -> B):</p>
+      <div class="mono">[1 0 0]
+[2 1 0]
+[1 2 1]</div>
+      <p class="kv">T (B -> A):</p>
+      <div class="mono">[1 0 0]
+[1 1 0]
+[0 1 1]</div>
+      <p class="kv">Взаимно обратны: <span class="yes">да</span></p>
+    </div>
+
+    <div class="card">
+      <h3>Сопряжённое пространство V*</h3>
+      <p class="kv">Базис V*, сопряжённый к A:</p>
+      <div class="mono">(1, 0, 0)
+(0, 1, 0)
+(0, 0, 1)</div>
+      <p class="kv">Базис V*, сопряжённый к B:</p>
+      <div class="mono">(1, 0, 0)
+(2, 1, 0)
+(1, 2, 1)</div>
+      <p class="kv">Условие e_i(b_j) = delta_ij: <span class="yes">выполнено</span></p>
+    </div>
+
+    <div class="card">
+      <h3>Координаты ковектора</h3>
+      <p class="kv">Ковектор <b>w = (1, 1, 1)</b></p>
+      <p class="kv">[w]<sub>A*</sub> = <b>(1, 1, 1)</b></p>
+      <p class="kv">[w]<sub>B*</sub> = <b>(2, 2, 1)</b></p>
+      <p class="kv">Координаты меняются ковариантно: <span class="yes">да</span></p>
+    </div>
+
+    <div class="card">
+      <h3>Изотропные векторы</h3>
+      <p class="note">Форма с единичной матрицей Грама, ненулевые v с &lt;v, v&gt; = 0:</p>
+      <div class="mono">(1, 1, 1)  (2, 1, 1)
+(1, 2, 1)  (2, 2, 1)
+(1, 1, 2)  (2, 1, 2)
+(1, 2, 2)  (2, 2, 2)</div>
+    </div>
+  </div>
+
+  <h2>Проверки корректности</h2>
+  <p class="note">Программа проверяет 38 инвариантов, все проходят. Несколько из них:</p>
+  <ul class="checks">
+    <li>полугруппы >= моноиды >= группы</li>
+    <li>не моноиды + моноиды = полугруппы</li>
+    <li>неабелевы + абелевы = группы</li>
+    <li>не кольца + кольца = полукольца</li>
+    <li>полукольца с 1, не кольца + кольца с 1 = полукольца с 1</li>
+    <li>без 1 + с 1 = кольца</li>
+    <li>тела не поля + поля = тела</li>
+    <li>число полей = n! / |Aut(F)|</li>
+    <li>матрицы перехода A->B и B->A взаимно обратны</li>
+    <li>координаты вектора контравариантны</li>
+    <li>сопряжённые базисы дают delta_ij</li>
+    <li>координаты ковектора ковариантны</li>
+  </ul>
+</main>
+
+<div class="signature">Выполнил: <span>Шестак Александр Сергеевич</span></div>
+</body>
+</html>
