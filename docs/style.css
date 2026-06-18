@@ -46,17 +46,6 @@ h3 {
   max-width: 760px;
 }
 
-.tag {
-  display: inline-block;
-  font-size: 13px;
-  color: var(--muted);
-  background: var(--soft);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 2px 12px;
-  margin-bottom: 16px;
-}
-
 .note {
   color: var(--muted);
   font-size: 14px;
@@ -208,7 +197,7 @@ ul.checks li {
 }
 
 ul.checks li::before {
-  content: "ok ";
+  content: "ок ";
   color: var(--ok);
   font-weight: 700;
 }
