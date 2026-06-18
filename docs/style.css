@@ -153,6 +153,53 @@ tbody tr:hover { background: #f9fbff; }
   color: var(--ink);
 }
 
+.field-tables h4 {
+  margin: 24px 0 10px;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.field-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px 12px;
+}
+
+.field-card h5 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.cayley-pair {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.cayley {
+  width: auto;
+  margin: 0;
+  font-size: 13px;
+}
+
+.cayley caption {
+  caption-side: top;
+  padding-bottom: 4px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.cayley td {
+  min-width: 26px;
+  padding: 4px 7px;
+  text-align: center;
+}
+
 .cols {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -224,6 +271,7 @@ ul.checks li::before {
   h1 { font-size: 25px; }
   .plot { gap: 18px; }
   .bar { width: 20px; }
+  .cayley-pair { flex-wrap: wrap; }
   ul.checks { columns: 1; }
   .signature { left: 12px; right: 12px; text-align: center; }
 }
