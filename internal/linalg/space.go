@@ -76,7 +76,31 @@ func (s Space) Coordinates(v Vector, basis []Vector) (Vector, bool) {
 	return inv.MulVec(v), true
 }
 
-func (s Space) Transition(from, to []Vector) (Matrix, bool) {
+func (s Space) DecodeCoordinates(coords Vector, basis []Vector) (Vector, bool) {
+	if !s.IsBasis(basis) || len(coords) != s.Dim {
+		return nil, false
+	}
+	return MatrixFromColumns(s.F, basis).MulVec(coords), true
+}
+
+func (s Space) BasisTransition(oldBasis, newBasis []Vector) (Matrix, bool) {
+	if !s.IsBasis(oldBasis) || !s.IsBasis(newBasis) {
+		return Matrix{}, false
+	}
+	out := ZeroMatrix(s.F, s.Dim, s.Dim)
+	for j, v := range newBasis {
+		coords, ok := s.Coordinates(v, oldBasis)
+		if !ok {
+			return Matrix{}, false
+		}
+		for i, x := range coords {
+			out.Set(i, j, x)
+		}
+	}
+	return out, true
+}
+
+func (s Space) CoordinateTransition(from, to []Vector) (Matrix, bool) {
 	if !s.IsBasis(from) || !s.IsBasis(to) {
 		return Matrix{}, false
 	}

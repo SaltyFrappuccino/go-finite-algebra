@@ -12,9 +12,9 @@ func TestBuildVerifications(t *testing.T) {
 	for _, n := range []int{2, 3, 4} {
 		reports = append(reports, algebra.BuildOrderReport(n))
 	}
-	checks := BuildVerifications(reports, linalg.BuildDemo(3, 3))
-	if len(checks) != 38 {
-		t.Fatalf("checks: got %d want 38", len(checks))
+	checks := BuildVerifications(reports, linalg.BuildAllDemos())
+	if len(checks) != 129 {
+		t.Fatalf("checks: got %d want 129", len(checks))
 	}
 	if !AllVerificationsPass(checks) {
 		t.Fatal("expected all verification checks to pass")

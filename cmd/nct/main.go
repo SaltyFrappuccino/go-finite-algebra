@@ -32,8 +32,13 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	demo := linalg.BuildDemo(*fieldOrder, *dim)
-	checks := render.BuildVerifications(reports, demo)
+	demos := linalg.BuildAllDemos()
+	if err := render.WriteVectorSpacesCSV(filepath.Join(*out, "vector_spaces.csv"), demos); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	demo := selectDemo(demos, *fieldOrder, *dim)
+	checks := render.BuildVerifications(reports, demos)
 	if err := render.WriteVerificationJSON(filepath.Join(*out, "verification.json"), checks); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -41,8 +46,17 @@ func main() {
 	render.PrintAlgebraReport(reports, *out)
 	render.PrintVectorDemo(demo)
 	fmt.Printf("\nПроверки корректности: %s\n", renderStatus(render.AllVerificationsPass(checks)))
-	fmt.Printf("Данные: %s/algebra_counts.csv, %s/verification.json, %s/fields_order_*.json\n", *out, *out, *out)
+	fmt.Printf("Данные: %s/algebra_counts.csv, %s/vector_spaces.csv, %s/verification.json, %s/fields_order_*.json\n", *out, *out, *out, *out)
 	fmt.Println("Страница для показа: docs/index.html")
+}
+
+func selectDemo(demos []linalg.Demo, order, dim int) linalg.Demo {
+	for _, demo := range demos {
+		if demo.Space.F.Order() == order && demo.Space.Dim == dim {
+			return demo
+		}
+	}
+	return linalg.BuildDemo(order, dim)
 }
 
 func renderStatus(ok bool) string {

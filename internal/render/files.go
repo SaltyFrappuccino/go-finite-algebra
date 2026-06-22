@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"nct/internal/algebra"
+	"nct/internal/linalg"
 )
 
 type FieldJSON struct {
@@ -126,6 +127,68 @@ func WriteCountsCSV(path string, reports []algebra.OrderReport) error {
 		}
 	}
 	return w.Error()
+}
+
+func WriteVectorSpacesCSV(path string, demos []linalg.Demo) error {
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	if _, err := file.WriteString("\ufeff"); err != nil {
+		return err
+	}
+	w := csv.NewWriter(file)
+	w.Comma = ';'
+	w.UseCRLF = true
+	defer w.Flush()
+	header := []string{
+		"поле",
+		"порядок поля",
+		"размерность",
+		"векторов в V",
+		"форма",
+		"изотропных ненулевых",
+		"базисы корректны",
+		"кодирование и декодирование",
+		"матрицы перехода базисов обратны",
+		"матрицы пересчета координат обратны",
+		"координаты вектора контравариантны",
+		"координаты ковектора ковариантны",
+		"значение ковектора инвариантно",
+	}
+	if err := w.Write(header); err != nil {
+		return err
+	}
+	for _, d := range demos {
+		row := []string{
+			d.Space.F.Name(),
+			strconv.Itoa(d.Space.F.Order()),
+			strconv.Itoa(d.Space.Dim),
+			strconv.Itoa(vectorCount(d)),
+			"q(v)=sum xi^2",
+			strconv.Itoa(len(d.Isotropic)),
+			yesNo(d.BasisAValid && d.BasisBValid),
+			yesNo(d.VectorDecoded),
+			yesNo(d.BasisTransitionsInvert),
+			yesNo(d.CoordinateTransitionsInvert),
+			yesNo(d.VectorContravariant),
+			yesNo(d.CovectorCovariant),
+			yesNo(d.CovectorEvaluationInvariant),
+		}
+		if err := w.Write(row); err != nil {
+			return err
+		}
+	}
+	return w.Error()
+}
+
+func vectorCount(d linalg.Demo) int {
+	total := 1
+	for i := 0; i < d.Space.Dim; i++ {
+		total *= d.Space.F.Order()
+	}
+	return total
 }
 
 func yesNo(v bool) string {

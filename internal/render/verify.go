@@ -3,6 +3,7 @@ package render
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
 
@@ -16,7 +17,7 @@ type Verification struct {
 	Detail string `json:"detail"`
 }
 
-func BuildVerifications(reports []algebra.OrderReport, demo linalg.Demo) []Verification {
+func BuildVerifications(reports []algebra.OrderReport, demos []linalg.Demo) []Verification {
 	var out []Verification
 	for _, r := range reports {
 		out = append(out,
@@ -77,33 +78,51 @@ func BuildVerifications(reports []algebra.OrderReport, demo linalg.Demo) []Verif
 			},
 		)
 	}
-	out = append(out,
-		Verification{
-			Name:   "базисы V",
-			Status: demo.BasisAValid && demo.BasisBValid,
-			Detail: "оба выбранных базиса имеют полный ранг",
-		},
-		Verification{
-			Name:   "матрицы перехода",
-			Status: demo.TransitionsInvert,
-			Detail: "матрицы A->B и B->A взаимно обратны",
-		},
-		Verification{
-			Name:   "координаты вектора",
-			Status: demo.VectorContravariant,
-			Detail: "координаты вектора меняются контравариантно",
-		},
-		Verification{
-			Name:   "сопряженные базисы",
-			Status: demo.DualAConjugate && demo.DualBConjugate,
-			Detail: "dual(A) и dual(B) удовлетворяют условию сопряженности",
-		},
-		Verification{
-			Name:   "координаты ковектора",
-			Status: demo.CovectorCovariant,
-			Detail: "координаты ковектора меняются ковариантно",
-		},
-	)
+	for _, demo := range demos {
+		prefix := fmt.Sprintf("%s dim %d: ", demo.Space.F.Name(), demo.Space.Dim)
+		out = append(out,
+			Verification{
+				Name:   prefix + "базисы V",
+				Status: demo.BasisAValid && demo.BasisBValid,
+				Detail: "оба выбранных базиса имеют полный ранг",
+			},
+			Verification{
+				Name:   prefix + "кодирование и декодирование",
+				Status: demo.VectorDecoded,
+				Detail: "координаты в A и B собираются обратно в один и тот же вектор",
+			},
+			Verification{
+				Name:   prefix + "матрицы перехода базисов",
+				Status: demo.BasisTransitionsInvert,
+				Detail: "C(A<-B) и C(B<-A) взаимно обратны",
+			},
+			Verification{
+				Name:   prefix + "матрицы пересчета координат",
+				Status: demo.CoordinateTransitionsInvert,
+				Detail: "матрицы пересчета A->B и B->A взаимно обратны",
+			},
+			Verification{
+				Name:   prefix + "координаты вектора",
+				Status: demo.VectorContravariant,
+				Detail: "[v]_A = C[v]_B и [v]_B = C^-1[v]_A",
+			},
+			Verification{
+				Name:   prefix + "сопряженные базисы",
+				Status: demo.DualAConjugate && demo.DualBConjugate,
+				Detail: "dual(A) и dual(B) удовлетворяют условию сопряженности",
+			},
+			Verification{
+				Name:   prefix + "координаты ковектора",
+				Status: demo.CovectorCovariant,
+				Detail: "[phi]_B = C^T[phi]_A",
+			},
+			Verification{
+				Name:   prefix + "значение ковектора",
+				Status: demo.CovectorEvaluationInvariant,
+				Detail: "phi(v) не зависит от выбранного базиса",
+			},
+		)
+	}
 	return out
 }
 
